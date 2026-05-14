@@ -1,0 +1,16 @@
+.game-card { display: flex; flex-direction: column; }
+.game-card-cover { position: relative; overflow: hidden; aspect-ratio: 16/9; background: var(--bg3); }
+.game-card-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.game-card:hover .game-card-cover img { transform: scale(1.05); }
+.game-rating-badge {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 13px !important; padding: 3px 10px !important;
+}
+.game-card-body { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.game-card-title { font-size: 16px; font-weight: 700; line-height: 1.3; }
+.game-card-meta  { display: flex; gap: 6px; flex-wrap: wrap; }
+.game-card-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: auto; padding-top: 8px; border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--muted);
+}

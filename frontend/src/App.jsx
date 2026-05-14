@@ -50,7 +50,7 @@ const Home = ({ token }) => {
     const fetchTopReviews = async () => {
       try {
         // Limitando a 3 para não encher a tela inicial
-        const res = await axios.get('http://localhost:5000/api/reviews?limit=3');
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews?limit=3`);
         setTopReviews(res.data.reviews);
       } catch (err) {
         console.error("Erro ao buscar top reviews", err);

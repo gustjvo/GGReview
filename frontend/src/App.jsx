@@ -1,32 +1,36 @@
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom'; 
+import { useState, useEffect } from 'react'; 
+import axios from 'axios'; 
 import logoImg from './assets/logo site.png';
 
-// Navbar
+
+// NAVBAR (A barra de navegação lá em cima)
+// token pra saber se o usuario da cadastrado ou nao
 const Navbar = ({ token, setToken }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // ferramenta pra levar o usuario pra outra pagina
+
+  // botao de sair
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('token'); // tira o token
     setToken(null);
-    navigate('/');
+    navigate('/'); 
   };
 
   return (
     <nav className="flex items-center justify-between p-6 border-b border-gray-800">
       <div className="flex items-center space-x-8">
-    <Link to="/" className="flex items-center">
-    <img 
-    src={logoImg} 
-    alt="Logo GameVault" 
-    className="h-20 w-auto object-contain" 
-    />
-    </Link>
+        
+        {/* logo */}
+        <Link to="/" className="flex items-center">
+          <img src={logoImg} alt="Logo GameVault" className="h-20 w-auto object-contain" />
+        </Link>
       </div>
+      
       <div className="space-x-4">
+        {/* Se ta logado mostra o botao sair.
+            se nao ta mostra botao de entrar e cadastrar*/}
         {token ? (
           <>
-
             <button onClick={handleLogout} className="px-4 py-2 border border-gray-700 rounded-md hover:bg-gray-800">Sair</button>
           </>
         ) : (
@@ -40,27 +44,30 @@ const Navbar = ({ token, setToken }) => {
   );
 };
 
-// Componente Home (Inspirado na Imagem)
-// Componente Home Atualizado
+
+
+// tela principal
 const Home = ({ token }) => {
+
   const [topReviews, setTopReviews] = useState([]);
 
-  // Busca as reviews para a tela inicial assim que a página carrega
+  // roda na hora que a tela inicial abre
   useEffect(() => {
     const fetchTopReviews = async () => {
       try {
-        // Limitando a 3 para não encher a tela inicial
+        // puxa 3 reviews do back
         const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews?limit=3`);
-        setTopReviews(res.data.reviews);
+        setTopReviews(res.data.reviews); 
       } catch (err) {
         console.error("Erro ao buscar top reviews", err);
       }
     };
     fetchTopReviews();
-  }, []);
+  }, []); 
 
   return (
     <div className="flex flex-col items-center justify-center mt-24 text-center px-4">
+      {/* texto princiapl*/}
       <p className="text-brand-accent font-semibold mb-4 text-sm tracking-widest uppercase">✦ Comunidade de Gamers</p>
       <h1 className="text-6xl font-black mb-6 leading-tight max-w-3xl">
         AVALIE, EXPLORE <br /> <span className="text-brand-accent">& DESCUBRA</span> <br /> JOGOS INCRÍVEIS
@@ -74,7 +81,7 @@ const Home = ({ token }) => {
           Explorar Jogos
         </Link>
         
-        {/* O botão 'Criar Conta' só aparece se NÃO houver token (não logado) */}
+        {/* criar conta so aparece se nao tiver logado */}
         {!token && (
           <Link to="/register" className="px-8 py-3 border border-gray-700 bg-brand-gray text-white font-bold rounded-md hover:bg-gray-800 transition">
             Criar Conta
@@ -88,13 +95,15 @@ const Home = ({ token }) => {
           <Link to="/explore" className="text-sm px-4 py-2 border border-gray-700 rounded-full hover:bg-gray-800 transition">Ver todos →</Link>
         </div>
         
-        {/* Grid exibindo os cards das reviews */}
+        {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {topReviews.length === 0 ? (
             <p className="text-gray-400">Nenhuma avaliação encontrada ainda.</p>
           ) : (
             topReviews.map((review) => (
               <div key={review._id} className="bg-brand-gray border border-gray-800 rounded-lg overflow-hidden flex flex-col">
+                
+                {/* se colocou imagem mostra, se nao mostra tela escrito sem imagem */}
                 {review.imageUrl ? (
                   <img src={review.imageUrl} alt={review.gameName} className="w-full h-40 object-cover" />
                 ) : (
@@ -102,6 +111,7 @@ const Home = ({ token }) => {
                     Sem Imagem
                   </div>
                 )}
+                
                 <div className="p-5 flex-grow">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-bold text-brand-accent truncate pr-2">{review.gameName}</h3>
@@ -119,18 +129,23 @@ const Home = ({ token }) => {
   );
 };
 
-// Componente Criar Review
+
+
+// CRIAR REVIEW 
 const CreateReview = ({ token }) => {
+// Guardar tudo que a pessoa digita no formulário
   const [formData, setFormData] = useState({ gameName: '', imageUrl: '', reviewText: '', recommend: true });
   const navigate = useNavigate();
 
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
     try {
-      await axios.post('http://localhost:5000/api/reviews', formData, {
-        headers: { Authorization: `Bearer ${token}` }
+      // Manda os dado digitado pro back (Corrigido aqui!)
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/reviews`, formData, {
+        headers: { Authorization: `Bearer ${token}` } // Mostra o token pro back
       });
-      navigate('/explore');
+      navigate('/explore'); 
     } catch (err) {
       alert('Erro ao criar review.');
     }
@@ -139,6 +154,8 @@ const CreateReview = ({ token }) => {
   return (
     <div className="max-w-2xl mx-auto mt-20 p-8 bg-brand-gray border border-gray-800 rounded-lg">
       <h2 className="text-3xl font-bold mb-6 text-brand-accent">Deixar uma Review</h2>
+      
+      {/* Formulário: Cada vez que a pessoa digita algo (onChange), atualiza a nossa caixinha 'formData' na hora */}
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <input type="text" placeholder="Nome do Jogo" required className="p-3 bg-[#0d0d12] border border-gray-700 rounded text-white"
           onChange={e => setFormData({...formData, gameName: e.target.value})} />
@@ -160,19 +177,26 @@ const CreateReview = ({ token }) => {
     </div>
   );
 };
-// Componente de Login
+
+
+// Login
 const Login = ({ setToken }) => {
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
+  // Entrar
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
     try {
-      const res = await axios.post('http://localhost:5000/api/login', { username, password });
+      // verificar o login (Corrigido aqui!)
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/login`, { username, password });
+      
+      // salvar o token no navegador para nao deslogar quando fechar
       localStorage.setItem('token', res.data.token);
-      setToken(res.data.token);
-      navigate('/explore'); // Redireciona para os jogos após logar
+      setToken(res.data.token); 
+      navigate('/explore'); // Manda pros jogos
     } catch (err) {
       alert('Erro ao fazer login. Verifique suas credenciais.');
     }
@@ -195,24 +219,24 @@ const Login = ({ setToken }) => {
 };
 
 
+
+// REGISTER (Tela de criar conta)
 const Register = () => {
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState(''); // Novo estado para o e-mail
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      // Mandando o email junto para o back-end
-      await axios.post('http://localhost:5000/api/register', { username, email, password });
+      // manda pro back criar a conta com essas informacoes (Corrigido aqui!)
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/register`, { username, email, password });
       alert('Conta criada com sucesso! Faça login.');
       navigate('/login');
     } catch (err) {
-      // Agora ele tenta ler o erro exato que o back-end mandou
       const mensagemErro = err.response?.data?.details || err.response?.data?.error || 'Erro de conexão com o servidor.';
       alert(`Falha ao criar conta: ${mensagemErro}`);
-      console.error(err);
     }
   };
 
@@ -221,17 +245,12 @@ const Register = () => {
       <div className="p-8 bg-brand-gray border border-gray-800 rounded-lg w-96 text-center">
         <h2 className="text-3xl font-bold mb-6 text-brand-accent">Criar Conta</h2>
         <form onSubmit={handleRegister} className="flex flex-col space-y-4">
-          
           <input type="text" placeholder="Nome de usuário" required className="p-3 bg-[#0d0d12] border border-gray-700 rounded text-white"
             onChange={e => setUsername(e.target.value)} />
-            
-          {/* Novo input de E-mail */}
           <input type="email" placeholder="E-mail" required className="p-3 bg-[#0d0d12] border border-gray-700 rounded text-white"
             onChange={e => setEmail(e.target.value)} />
-            
           <input type="password" placeholder="Senha" required className="p-3 bg-[#0d0d12] border border-gray-700 rounded text-white"
             onChange={e => setPassword(e.target.value)} />
-            
           <button type="submit" className="p-3 bg-brand-accent text-black font-bold rounded hover:bg-yellow-400">Cadastrar</button>
         </form>
       </div>
@@ -240,39 +259,37 @@ const Register = () => {
 };
 
 
-// Componente Explorar (Lista de Jogos)
-const Explore = () => {
-  const [reviews, setReviews] = useState([]);
-  const [search, setSearch] = useState('');
+// explore
 
+const Explore = () => {
+  const [reviews, setReviews] = useState([]); // guarda os jogos avaliados
+  const [search, setSearch] = useState(''); // guarda o que digitou na pesquisa
+
+  // cada vez que a pesquisa atualiza, refaz a busca sozinho la no back
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/reviews?search=${search}`);
+        // (Corrigido aqui também!)
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews?search=${search}`);
         setReviews(res.data.reviews);
       } catch (err) {
         console.error("Erro ao buscar reviews", err);
       }
     };
     fetchReviews();
-  }, [search]); // Refaz a busca sempre que o texto da pesquisa muda
+  }, [search]); // pesquisa atualiza na hora
 
   return (
     <div className="max-w-5xl mx-auto mt-12 px-4">
-      
-      {/* CABEÇALHO DO EXPLORAR ALTERADO */}
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold">Explorar Jogos</h2>
         
-        {/* Agrupamos o Botão e a Pesquisa aqui */}
         <div className="flex items-center gap-4">
-          <Link 
-            to="/create" 
-            className="px-6 py-3 bg-brand-accent text-black font-bold rounded-md hover:bg-yellow-400 transition"
-          >
+          <Link to="/create" className="px-6 py-3 bg-brand-accent text-black font-bold rounded-md hover:bg-yellow-400 transition">
             Nova Review
           </Link>
 
+          {/* Barra de pesquisa*/}
           <input 
             type="text" 
             placeholder="Pesquisar jogo..." 
@@ -281,8 +298,8 @@ const Explore = () => {
           />
         </div>
       </div>
-      {/* FIM DO CABEÇALHO */}
 
+      {/* Mesma lógica lá da Home, desenhando as caixinhas dos jogos... */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {reviews.length === 0 ? (
           <p className="text-gray-400">Nenhuma avaliação encontrada.</p>
@@ -308,19 +325,28 @@ const Explore = () => {
   );
 };
 
-// Componente Principal App
+
+
+// APP 
 export default function App() {
+  // Pega o token salvo no navegador, se tiver, pra pessoa não ter que logar de novo todo dia
   const [token, setToken] = useState(localStorage.getItem('token'));
+
 
   return (
     <Router>
       <div className="min-h-screen font-sans">
+        
+        {/* A Navbar fica aqui fora pra aparecer em todas as paginas */}
         <Navbar token={token} setToken={setToken} />
+        
         <Routes>
           <Route path="/" element={<Home token={token} />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/login" element={<Login setToken={setToken} />} />
           <Route path="/register" element={<Register />} />
+          
+          {/* Se ta logado , deixa ele ir pra tela de criar Se nao, mostra o aviso */}
           <Route path="/create" element={token ? <CreateReview token={token} /> : <div className="text-center mt-20 text-xl font-bold text-red-500">Faça login para avaliar.</div>} />
         </Routes>
       </div>
